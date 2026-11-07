@@ -206,7 +206,7 @@ def test_build_app_creates_and_wires_everything(
     assert h.app.curtain is not None
     assert h.worker.started
     assert not h.worker.stopped
-    assert qapp.applicationName() == "Eye Tracker"
+    assert qapp.applicationName() == "Eye Tracker LZ"
     assert not qapp.quitOnLastWindowClosed()
 
     # The command socket reaches the controller.
@@ -507,7 +507,7 @@ def test_a_launch_hands_over_once_a_busy_instance_answers(
     build: Callable[..., Harness], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(ipc, "STARTUP_WAIT_MS", 0)
-    busy = "error: Eye Tracker is starting or shutting down; try again"
+    busy = "error: Eye Tracker LZ is starting or shutting down; try again"
     replies = iter([busy, busy, "ok"])
     sent: list[str] = []
 
@@ -889,7 +889,7 @@ def test_unfinished_setup_is_offered_after_a_login_start(
     settle(qapp)
     assert h.app.wizard is None  # a login start stays quiet
     assert _wait_for(qapp, lambda: bool(titles))
-    assert titles == ["Finish setting up Eye Tracker"]
+    assert titles == ["Finish setting up Eye Tracker LZ"]
     h.tray.tray.messageClicked.emit()
     wizard = h.app.wizard
     assert wizard is not None

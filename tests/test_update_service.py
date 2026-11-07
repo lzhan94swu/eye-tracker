@@ -23,8 +23,8 @@ from test_update_fetch import FakeResponse, FakeTransport
 TAG = "v0.2.2"
 NAME = "EyeTracker-0.2.2-windows-x64-setup.exe"
 BODY = b"MZ" + b"\x01" * 4000
-API = ("api.github.com", "/repos/bugraskl/eye-tracker/releases/latest")
-BASE = f"/bugraskl/eye-tracker/releases/download/{TAG}"
+API = ("api.github.com", "/repos/lzhan94swu/eye-tracker/releases/latest")
+BASE = f"/lzhan94swu/eye-tracker/releases/download/{TAG}"
 
 
 def release_json(tag: str = TAG) -> bytes:
@@ -65,10 +65,10 @@ def transport(tag: str = TAG, *, body: bytes = BODY) -> FakeTransport:
     return FreshTransport(
         {
             API: FakeResponse(body=release_json(tag)),
-            ("github.com", f"/bugraskl/eye-tracker/releases/download/{tag}/SHA256SUMS.txt"): (
+            ("github.com", f"/lzhan94swu/eye-tracker/releases/download/{tag}/SHA256SUMS.txt"): (
                 FakeResponse(body=listing)
             ),
-            ("github.com", f"/bugraskl/eye-tracker/releases/download/{tag}/{name}"): FakeResponse(
+            ("github.com", f"/lzhan94swu/eye-tracker/releases/download/{tag}/{name}"): FakeResponse(
                 body=body
             ),
         }

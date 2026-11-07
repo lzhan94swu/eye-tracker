@@ -63,7 +63,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Eye Tracker version
+      label: Eye Tracker LZ version
       description: Shown in About, or run the command-line tool (see below) with `--version`.
       placeholder: "0.2.0"
     validations:
@@ -87,18 +87,18 @@ body:
   - type: textarea
     id: doctor
     attributes:
-      label: Output of `eye-tracker doctor`
+      label: Output of `eye-tracker-lz doctor`
       description: |
         Paste the whole report. It lists versions, monitors, backends, permissions and paths (no images).
         You can also copy it from **Settings → Diagnostics → Copy report**. From a terminal:
 
-        - Windows installer: `eye-tracker doctor` in a new terminal (if you unticked the PATH
-          option while installing: `.\eye-tracker.exe doctor` in `%LOCALAPPDATA%\Programs\Eye Tracker`)
+        - Windows installer: `eye-tracker-lz doctor` in a new terminal (if you unticked the PATH
+          option while installing: `.\eye-tracker-lz.exe doctor` in `%LOCALAPPDATA%\Programs\Eye Tracker LZ`)
         - Windows portable: `.\eye-tracker-cli.exe doctor` in the extracted folder
-        - macOS: `"/Applications/Eye Tracker.app/Contents/MacOS/eye-tracker-cli" doctor`
+        - macOS: `"/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli" doctor`
         - Linux AppImage: the AppImage file itself, e.g. `./EyeTracker-*.AppImage doctor`
         - Linux tarball: `./eye-tracker/eye-tracker doctor`
-        - From source: `uv run eye-tracker doctor`
+        - From source: `uv run eye-tracker-lz doctor`
 
         If the problem is about cameras, run `doctor --probe-cameras` instead.
       render: text

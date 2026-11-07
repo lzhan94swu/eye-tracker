@@ -65,7 +65,7 @@ def instance(env: Path) -> Iterator[Callable[[Callable[[str], str]], ipc.Instanc
 
 
 class FakeAutostart:
-    EXE = "C:\\Program Files\\Eye Tracker\\EyeTracker.exe"
+    EXE = "C:\\Program Files\\Eye Tracker LZ\\EyeTracker.exe"
 
     def __init__(self, monkeypatch: pytest.MonkeyPatch, *, supported: bool = True) -> None:
         self.enabled = False
@@ -116,7 +116,7 @@ class FakeAutostart:
 # ------------------------------------------------------------------------- basics
 def test_version(capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.main(["--version"]) == cli.EXIT_OK
-    assert capsys.readouterr().out.strip() == f"Eye Tracker {__version__}"
+    assert capsys.readouterr().out.strip() == f"Eye Tracker LZ {__version__}"
 
 
 def test_help_lists_every_subcommand(capsys: pytest.CaptureFixture[str]) -> None:
@@ -150,7 +150,7 @@ def test_python_dash_m_entry_point() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == f"Eye Tracker {__version__}"
+    assert result.stdout.strip() == f"Eye Tracker LZ {__version__}"
 
 
 def test_gui_main_survives_missing_std_streams(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -175,7 +175,7 @@ def package(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Callable[..., Pa
     The first name is the running one (``sys.executable``).
     """
 
-    def make(running: str, *others: str, folder_name: str = "Eye Tracker") -> Path:
+    def make(running: str, *others: str, folder_name: str = "Eye Tracker LZ") -> Path:
         folder = tmp_path / folder_name
         folder.mkdir(exist_ok=True)
         for name in (running, *others):
@@ -212,23 +212,23 @@ def test_shown_commands_use_the_installers_command_on_the_path(
     """The Windows installer adds eye-tracker.exe (a copy of eye-tracker-cli.exe) and
     puts its folder on the PATH: hints then show the short command the docs use."""
     monkeypatch.setattr(sys, "platform", "win32")
-    folder = package("EyeTracker.exe", "eye-tracker-cli.exe", "eye-tracker.exe")
+    folder = package("EyeTracker.exe", "eye-tracker-cli.exe", "eye-tracker-lz.exe")
     gui_exe = str(folder / "EyeTracker.exe")
-    on_path: list[str | None] = [str(folder / "eye-tracker.exe")]
+    on_path: list[str | None] = [str(folder / "eye-tracker-lz.exe")]
     monkeypatch.setattr(cli.shutil, "which", lambda name: on_path[0])
-    assert cli.cli_command("ctl", "toggle") == ["eye-tracker", "ctl", "toggle"]
-    assert cli._program_name() == "eye-tracker"
+    assert cli.cli_command("ctl", "toggle") == ["eye-tracker-lz", "ctl", "toggle"]
+    assert cli._program_name() == "eye-tracker-lz"
     # The app is still started windowed, never through the console command.
     assert cli.app_command() == [gui_exe]
-    package("eye-tracker.exe")
-    assert cli.cli_command("doctor") == ["eye-tracker", "doctor"]
+    package("eye-tracker-lz.exe")
+    assert cli.cli_command("doctor") == ["eye-tracker-lz", "doctor"]
     assert cli.app_command() == [gui_exe]
 
     # PATH option unticked (or not seen yet by this process): the full path.
     on_path[0] = None
     assert cli.cli_command() == [str(folder / "eye-tracker-cli.exe")]
     # Another copy's eye-tracker on the PATH would control the wrong installation.
-    other = tmp_path / "other" / "eye-tracker.exe"
+    other = tmp_path / "other" / "eye-tracker-lz.exe"
     other.parent.mkdir()
     other.write_bytes(b"")
     on_path[0] = str(other)
@@ -238,9 +238,9 @@ def test_shown_commands_use_the_installers_command_on_the_path(
 def test_shown_commands_in_the_macos_and_linux_packages(
     package: Callable[..., Path], tmp_path: Path
 ) -> None:
-    folder = package("eye-tracker-cli", "Eye Tracker")  # Eye Tracker.app/Contents/MacOS
+    folder = package("eye-tracker-cli", "Eye Tracker LZ")  # Eye Tracker LZ.app/Contents/MacOS
     assert cli.cli_command() == [str(folder / "eye-tracker-cli")]
-    assert cli.app_command() == [str(folder / "Eye Tracker")]
+    assert cli.app_command() == [str(folder / "Eye Tracker LZ")]
 
     tarball = package("eye-tracker", folder_name="eye-tracker")  # one executable for both
     assert cli.cli_command("doctor") == [str(tarball / "eye-tracker"), "doctor"]
@@ -273,27 +273,27 @@ def test_shown_commands_from_source(monkeypatch: pytest.MonkeyPatch, tmp_path: P
     on_path: list[str | None] = [None]
     monkeypatch.setattr(cli.shutil, "which", lambda name: on_path[0])
     monkeypatch.setattr(sys, "executable", "")  # an embedded interpreter
-    assert cli.cli_command("doctor") == ["eye-tracker", "doctor"]
+    assert cli.cli_command("doctor") == ["eye-tracker-lz", "doctor"]
     monkeypatch.setattr(sys, "executable", str(python))
 
     # No console script: run the package with this interpreter.
     assert cli.cli_command("doctor") == [str(python), "-m", "eye_tracker", "doctor"]
     assert cli._program_name() == "python -m eye_tracker"
 
-    script = venv / f"eye-tracker{suffix}"
+    script = venv / f"eye-tracker-lz{suffix}"
     script.write_bytes(b"")
     # The script of this environment, not on the PATH: its full path.
     assert cli.cli_command() == [str(script)]
-    assert cli._program_name() == "eye-tracker"
+    assert cli._program_name() == "eye-tracker-lz"
     # Another installation's eye-tracker on the PATH would control the wrong copy.
-    other = tmp_path / f"other-eye-tracker{suffix}"
+    other = tmp_path / f"other-eye-tracker-lz{suffix}"
     other.write_bytes(b"")
     on_path[0] = str(other)
     assert cli.cli_command() == [str(script)]
     # This environment's own script on the PATH (an activated venv, uv run).
     on_path[0] = str(script)
-    assert cli.cli_command("ctl", "toggle") == ["eye-tracker", "ctl", "toggle"]
-    assert cli.app_command() == ["eye-tracker"]
+    assert cli.cli_command("ctl", "toggle") == ["eye-tracker-lz", "ctl", "toggle"]
+    assert cli.app_command() == ["eye-tracker-lz"]
 
 
 def test_shown_commands_keep_the_profile(
@@ -395,7 +395,7 @@ def test_the_windows_console_command_starts_the_app_on_its_own(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
     """r3-ux-docs-06: run in the terminal, the app died with the terminal window."""
-    folder = package("eye-tracker.exe", "eye-tracker-cli.exe", "EyeTracker.exe")
+    folder = package("eye-tracker-lz.exe", "eye-tracker-cli.exe", "EyeTracker.exe")
     _pretend_platform(monkeypatch, "win32")
     monkeypatch.setattr(cli, "_instance_running", lambda: False)
     trace = env / "trace.jsonl"
@@ -449,7 +449,7 @@ def test_other_executables_run_the_app_in_place(
     platform: str,
     running: str,
 ) -> None:
-    package(running, "EyeTracker.exe", "Eye Tracker")
+    package(running, "EyeTracker.exe", "Eye Tracker LZ")
     _pretend_platform(monkeypatch, platform)
     monkeypatch.setattr(cli, "_instance_running", lambda: False)
     assert cli.main([]) == 0
@@ -503,7 +503,7 @@ def test_doctor_json(env: Path, capsys: pytest.CaptureFixture[str]) -> None:
 def test_doctor_text(env: Path, capsys: pytest.CaptureFixture[str]) -> None:
     assert cli.main(["doctor", "--log-level", "error"]) == cli.EXIT_OK
     out = capsys.readouterr().out
-    assert out.startswith(f"Eye Tracker {__version__} - diagnostics")
+    assert out.startswith(f"Eye Tracker LZ {__version__} - diagnostics")
     assert "Vision backends" in out
 
 
@@ -540,7 +540,7 @@ def test_bench_text_uses_the_settings(
     settings.save(paths.settings_file())
     assert cli.main(["bench", "--seconds", "0.2"]) == cli.EXIT_OK
     out = capsys.readouterr().out
-    assert out.startswith("Eye Tracker benchmark - lite backend")
+    assert out.startswith("Eye Tracker LZ benchmark - lite backend")
     assert "file configured.png" in out
 
 
@@ -557,7 +557,7 @@ def test_ctl_without_an_instance(env: Path, capsys: pytest.CaptureFixture[str]) 
     assert cli.main(["ctl", "status"]) == cli.EXIT_NOT_RUNNING
     captured = capsys.readouterr()
     assert captured.out == ""
-    assert "Eye Tracker is not running" in captured.err
+    assert "Eye Tracker LZ is not running" in captured.err
 
 
 def test_ctl_with_an_instance(
@@ -690,7 +690,7 @@ def test_backend_option_takes_current_and_legacy_names(
     for given, expected in (
         ("facemesh", "facemesh"),
         ("LITE", "lite"),
-        ("mediapipe", "facemesh"),  # Eye Tracker 0.1 names in old shortcuts
+        ("mediapipe", "facemesh"),  # Eye Tracker LZ 0.1 names in old shortcuts
         ("opencv", "lite"),
     ):
         assert cli.main(["--backend", given]) == 0

@@ -312,7 +312,7 @@ class TestWindows:
     ) -> None:
         assert autostart.is_enabled() is False
         autostart.enable()
-        value = registry[(autostart.RUN_KEY, "EyeTracker")]
+        value = registry[(autostart.RUN_KEY, "EyeTrackerLZ")]
         assert value == subprocess.list2cmdline([str(frozen_app), "--background"])
         assert value.startswith(f'"{frozen_app}"')  # path contains spaces
         assert autostart.is_enabled() is True
@@ -321,7 +321,7 @@ class TestWindows:
         self, registry: dict[tuple[str, str], Any], frozen_app: Path
     ) -> None:
         autostart.enable(background=False)
-        assert registry[(autostart.RUN_KEY, "EyeTracker")] == f'"{frozen_app}"'
+        assert registry[(autostart.RUN_KEY, "EyeTrackerLZ")] == f'"{frozen_app}"'
 
     @pytest.mark.parametrize(
         ("flag", "enabled"),
@@ -330,8 +330,8 @@ class TestWindows:
     def test_task_manager_disabled_flag(
         self, registry: dict[tuple[str, str], Any], frozen_app: Path, flag: bytes, enabled: bool
     ) -> None:
-        registry[(autostart.RUN_KEY, "EyeTracker")] = f'"{frozen_app}" --background'
-        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] = flag
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = f'"{frozen_app}" --background'
+        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] = flag
         assert autostart.is_enabled() is enabled
         expected = autostart.Status.ENABLED if enabled else autostart.Status.DISABLED
         assert autostart.status() is expected
@@ -339,19 +339,19 @@ class TestWindows:
     def test_enable_clears_task_manager_disabled_flag(
         self, registry: dict[tuple[str, str], Any]
     ) -> None:
-        registry[(autostart.RUN_KEY, "EyeTracker")] = "old.exe"
-        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] = b"\x03" + bytes(11)
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = "old.exe"
+        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] = b"\x03" + bytes(11)
         autostart.enable()
-        assert (autostart.STARTUP_APPROVED_KEY, "EyeTracker") not in registry
+        assert (autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ") not in registry
         assert autostart.is_enabled() is True
 
     def test_blank_value_is_not_enabled(self, registry: dict[tuple[str, str], Any]) -> None:
-        registry[(autostart.RUN_KEY, "EyeTracker")] = "   "
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = "   "
         assert autostart.is_enabled() is False
 
     def test_disable_removes_everything(self, registry: dict[tuple[str, str], Any]) -> None:
         autostart.enable()
-        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] = b"\x03"
+        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] = b"\x03"
         registry[(autostart.RUN_KEY, "OtherApp")] = "other.exe"
         autostart.disable()
         assert registry == {(autostart.RUN_KEY, "OtherApp"): "other.exe"}
@@ -373,7 +373,7 @@ class TestWindows:
 
     def test_location(self) -> None:
         assert autostart.location() == (
-            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\EyeTracker"
+            r"HKCU\Software\Microsoft\Windows\CurrentVersion\Run\EyeTrackerLZ"
         )
 
 
@@ -381,7 +381,7 @@ class TestWindows:
 def test_real_registry_helpers_refuse_off_windows(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.undo()  # restore the real helpers; they must refuse before touching anything
     with pytest.raises(autostart.AutostartError):
-        autostart._reg_read(autostart.RUN_KEY, "EyeTracker")
+        autostart._reg_read(autostart.RUN_KEY, "EyeTrackerLZ")
 
 
 # ---------------------------------------------------------------------- macOS
@@ -572,10 +572,10 @@ class TestLinux:
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "cfg"))
-        assert REAL_LINUX_DESKTOP_PATH() == tmp_path / "cfg" / "autostart" / "eye-tracker.desktop"
+        assert REAL_LINUX_DESKTOP_PATH() == tmp_path / "cfg" / "autostart" / "eye-tracker-lz.desktop"
         monkeypatch.setenv("XDG_CONFIG_HOME", "relative/dir")  # invalid per spec -> ignored
         assert REAL_LINUX_DESKTOP_PATH() == (
-            Path.home() / ".config" / "autostart" / "eye-tracker.desktop"
+            Path.home() / ".config" / "autostart" / "eye-tracker-lz.desktop"
         )
         monkeypatch.delenv("XDG_CONFIG_HOME")
         assert REAL_LINUX_DESKTOP_PATH().parent == Path.home() / ".config" / "autostart"
@@ -643,7 +643,7 @@ class TestUnsupported:
 
 # ------------------------------------------------------------------- profiles
 def run_value(registry: dict[tuple[str, str], Any]) -> list[str]:
-    return autostart._win_split(registry[(autostart.RUN_KEY, "EyeTracker")])
+    return autostart._win_split(registry[(autostart.RUN_KEY, "EyeTrackerLZ")])
 
 
 @pytest.fixture
@@ -738,7 +738,7 @@ class TestProfiles:
     ) -> None:
         use_system(monkeypatch, "windows")
         command = [str(frozen_app), "--config-dir", str(portable).upper(), "--background"]
-        registry[(autostart.RUN_KEY, "EyeTracker")] = subprocess.list2cmdline(command)
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = subprocess.list2cmdline(command)
         assert autostart.status(portable) is Status.ENABLED
 
     def test_equals_form_is_understood(
@@ -750,7 +750,7 @@ class TestProfiles:
     ) -> None:
         use_system(monkeypatch, "windows")
         command = [str(frozen_app), f"--config-dir={portable}"]
-        registry[(autostart.RUN_KEY, "EyeTracker")] = subprocess.list2cmdline(command)
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = subprocess.list2cmdline(command)
         assert autostart.status(portable) is Status.ENABLED
         assert autostart.status() is Status.OTHER_PROFILE
 
@@ -807,7 +807,7 @@ class TestStaleEntries:
     ) -> None:
         use_system(monkeypatch, "windows")
         gone = tmp_path / "old portable" / "EyeTracker.exe"
-        registry[(autostart.RUN_KEY, "EyeTracker")] = f'"{gone}" --background'
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = f'"{gone}" --background'
         assert autostart.status() is Status.STALE
         assert autostart.is_enabled() is False
         assert autostart.registered_command() == [str(gone), "--background"]
@@ -817,7 +817,7 @@ class TestStaleEntries:
     ) -> None:
         use_system(monkeypatch, "windows")
         monkeypatch.setattr(autostart.shutil, "which", lambda name: f"/usr/bin/{name}")
-        registry[(autostart.RUN_KEY, "EyeTracker")] = "eye-tracker-gui --background"
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = "eye-tracker-lz-gui --background"
         assert autostart.status() is Status.ENABLED
         monkeypatch.setattr(autostart.shutil, "which", lambda name: None)
         assert autostart.status() is Status.STALE
@@ -948,12 +948,12 @@ class TestRefresh:
     ) -> None:
         use_system(monkeypatch, "windows")
         installer_value = f'"{str(frozen_app).upper()}" --background'
-        registry[(autostart.RUN_KEY, "EyeTracker")] = installer_value
-        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] = b"\x02" + bytes(11)
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = installer_value
+        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] = b"\x02" + bytes(11)
         assert autostart.refresh() is False
-        assert registry[(autostart.RUN_KEY, "EyeTracker")] == installer_value
+        assert registry[(autostart.RUN_KEY, "EyeTrackerLZ")] == installer_value
         # The Task Manager state is untouched as well.
-        assert (autostart.STARTUP_APPROVED_KEY, "EyeTracker") in registry
+        assert (autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ") in registry
 
     def test_task_manager_disabled_entry_is_not_revived(
         self,
@@ -963,10 +963,10 @@ class TestRefresh:
         tmp_path: Path,
     ) -> None:
         use_system(monkeypatch, "windows")
-        registry[(autostart.RUN_KEY, "EyeTracker")] = f'"{tmp_path / "gone.exe"}"'
-        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] = b"\x03" + bytes(11)
+        registry[(autostart.RUN_KEY, "EyeTrackerLZ")] = f'"{tmp_path / "gone.exe"}"'
+        registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] = b"\x03" + bytes(11)
         assert autostart.refresh() is False
-        assert registry[(autostart.STARTUP_APPROVED_KEY, "EyeTracker")] == b"\x03" + bytes(11)
+        assert registry[(autostart.STARTUP_APPROVED_KEY, "EyeTrackerLZ")] == b"\x03" + bytes(11)
 
     def test_macos_entry_made_from_the_disk_image_is_moved_to_applications(
         self, monkeypatch: pytest.MonkeyPatch, frozen_app: Path

@@ -223,7 +223,7 @@ def test_format_report(env: Path) -> None:
     report = diagnostics.collect_report()
     text = diagnostics.format_report(report)
     lines = text.splitlines()
-    assert lines[0] == f"Eye Tracker {__version__} - diagnostics"
+    assert lines[0] == f"Eye Tracker LZ {__version__} - diagnostics"
     assert lines[1] == "=" * len(lines[0])
     for heading in ("Problems", "App", "Qt", "Monitors", "Vision backends", "Paths"):
         assert heading in lines
@@ -243,7 +243,7 @@ def test_format_report_handles_errors_and_odd_values() -> None:
         "monitors": {"count": 0, "items": []},
     }
     text = diagnostics.format_report(report)
-    assert "Eye Tracker 9.9 - diagnostics" in text
+    assert "Eye Tracker LZ 9.9 - diagnostics" in text
     assert "none found" in text
     assert "error  OSError: nope" in text
     assert "flag         yes" in text
@@ -284,7 +284,7 @@ def test_problems_from_a_synthetic_report() -> None:
         "No vision backend is available",
         "Only one monitor detected: switching needs two or more "
         "(walk-away and privacy features still work).",
-        "No camera delivered a picture (it may be in use by Eye Tracker itself).",
+        "No camera delivered a picture (it may be in use by Eye Tracker LZ itself).",
         "Camera access is blocked by the operating system's privacy settings.",
         "Accessibility permission is missing: keyboard focus cannot follow your gaze.",
         "This session does not allow moving the cursor. On Wayland, sway and Hyprland "
@@ -358,7 +358,7 @@ def test_run_bench_on_an_image(tmp_path: Path) -> None:
     json.dumps(result)
 
     text = diagnostics.format_bench(result)
-    assert text.startswith("Eye Tracker benchmark - lite backend (yunet-geom-1)")
+    assert text.startswith("Eye Tracker LZ benchmark - lite backend (yunet-geom-1)")
     assert "max speed" in text
     assert "idle (20 fps)" in text
     assert "frames per second" in text
@@ -462,7 +462,7 @@ def test_hotkeys_that_type_a_character_are_problems(
 
     monkeypatch.setattr(hotkeys, "create_hotkey_manager", _FakeHotkeyManager)
     settings = Settings()
-    settings.hotkeys.toggle_tracking = "ctrl+alt+t"  # an Eye Tracker 0.1 default
+    settings.hotkeys.toggle_tracking = "ctrl+alt+t"  # an Eye Tracker LZ 0.1 default
     settings.save(paths.settings_file())
     report = diagnostics.collect_report()
     conflicts = report["hotkeys"]["layout_conflicts"]
@@ -538,7 +538,7 @@ def test_a_stale_accessibility_grant_is_explained() -> None:
     problems = diagnostics._problems({"platform": section})
     assert len(problems) == 1
     assert "granted to an earlier version" in problems[0]
-    assert "remove Eye Tracker with '-' and add it again" in problems[0]
+    assert "remove Eye Tracker LZ with '-' and add it again" in problems[0]
     assert problems[0].isascii()
 
 
@@ -557,7 +557,7 @@ def test_the_macos_cli_explains_why_accessibility_is_unknown(
 ) -> None:
     monkeypatch.setattr(diagnostics.sys, "platform", "darwin")
     monkeypatch.setattr(diagnostics.paths, "is_frozen", lambda: True)
-    macos = tmp_path / "Eye Tracker.app" / "Contents" / "MacOS"
+    macos = tmp_path / "Eye Tracker LZ.app" / "Contents" / "MacOS"
     monkeypatch.setattr(diagnostics.sys, "executable", str(macos / "eye-tracker-cli"))
     section = diagnostics._platform_section(_MacCliServices())
     assert "accessibility" not in section  # unknown: no verdict either way
@@ -568,7 +568,7 @@ def test_the_macos_cli_explains_why_accessibility_is_unknown(
     assert diagnostics._problems({"platform": section}) == []
 
     # The app itself (or a known permission) needs no such note.
-    monkeypatch.setattr(diagnostics.sys, "executable", str(macos / "Eye Tracker"))
+    monkeypatch.setattr(diagnostics.sys, "executable", str(macos / "Eye Tracker LZ"))
     assert "notes" not in diagnostics._platform_section(_MacCliServices())
     monkeypatch.setattr(diagnostics.sys, "executable", str(macos / "eye-tracker-cli"))
     assert "notes" not in diagnostics._platform_section(_MacLikeServices())

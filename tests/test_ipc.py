@@ -225,7 +225,7 @@ def test_server_name_depends_on_the_config_dir(qapp: Any, tmp_path: Path) -> Non
     assert first != second
     for name in (first, second):
         directory, base = os.path.split(name)
-        assert base.startswith("eye-tracker-")
+        assert base.startswith("eye-tracker-lz-")
         # A bare name (Qt chooses the place) or, on Linux, a socket path in the
         # private runtime directory (the autouse fixture's), unless that is too long.
         if directory:
@@ -277,7 +277,7 @@ def test_private_temp_dir_is_created_for_this_user_only(
 ) -> None:
     monkeypatch.setattr(ipc.tempfile, "tempdir", str(tmp_path))
     path = ipc._private_temp_dir()
-    assert path == os.path.join(str(tmp_path), f"eye-tracker-{os.getuid()}")
+    assert path == os.path.join(str(tmp_path), f"eye-tracker-lz-{os.getuid()}")
     assert os.stat(path).st_mode & 0o777 == 0o700
     assert ipc._private_temp_dir() == path  # reused
 
@@ -287,7 +287,7 @@ def test_private_temp_dir_refuses_a_directory_others_can_write(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(ipc.tempfile, "tempdir", str(tmp_path))
-    shared = tmp_path / f"eye-tracker-{os.getuid()}"
+    shared = tmp_path / f"eye-tracker-lz-{os.getuid()}"
     shared.mkdir()
     shared.chmod(0o777)
     assert ipc._private_temp_dir() is None
