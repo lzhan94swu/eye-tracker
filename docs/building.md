@@ -135,7 +135,7 @@ altered (restore it from git), and the PyInstaller spec refuses to build without
   built and tested. It is a reusable workflow, never run on its own: the Bundle check and the
   release both call it, so a pull request checks exactly what a release ships. It reads the version
   and writes the release notes, then builds each platform on its own runner (`windows-latest`,
-  `macos-14`, and `ubuntu-22.04` for the oldest supported glibc):
+  `macos-15`, and `ubuntu-22.04` for the oldest supported glibc):
   - **every platform:** PyInstaller, the bundle privacy gate, the packages, and
     `scripts/smoke_test_bundle.py` on each package the way users get it;
   - **Windows:** the bundle (the portable ZIP's contents), then the installer, which a disposable

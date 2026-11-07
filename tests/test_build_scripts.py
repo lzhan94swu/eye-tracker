@@ -728,7 +728,7 @@ def test_packages_are_built_and_tested_in_one_place() -> None:
     assert set(build) == {"prepare", "build-windows", "build-macos", "build-linux"}
     for job, runner in (
         ("build-windows", "windows-latest"),
-        ("build-macos", "macos-14"),
+        ("build-macos", "macos-15"),
         ("build-linux", "ubuntu-22.04"),
     ):
         assert f"    runs-on: {runner}\n" in build[job], job
