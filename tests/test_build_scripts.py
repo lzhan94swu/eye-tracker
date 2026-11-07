@@ -338,7 +338,9 @@ def test_entry_point_selection_does_not_depend_on_the_os(
     monkeypatch.setattr(entry, "os", SimpleNamespace(path=flavour))
     assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker LZ\EyeTracker.exe")
     assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker LZ\eyetracker.EXE")
-    assert entry._is_gui_executable("/Applications/Eye Tracker LZ.app/Contents/MacOS/Eye Tracker LZ")
+    assert entry._is_gui_executable(
+        "/Applications/Eye Tracker LZ.app/Contents/MacOS/Eye Tracker LZ"
+    )
     assert not entry._is_gui_executable(r"C:\portable\EyeTracker\eye-tracker-cli.exe")
     assert not entry._is_gui_executable("/opt/eye-tracker/eye-tracker")
 

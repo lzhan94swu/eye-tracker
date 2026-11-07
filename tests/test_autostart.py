@@ -572,7 +572,9 @@ class TestLinux:
         self, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
     ) -> None:
         monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "cfg"))
-        assert REAL_LINUX_DESKTOP_PATH() == tmp_path / "cfg" / "autostart" / "eye-tracker-lz.desktop"
+        assert REAL_LINUX_DESKTOP_PATH() == (
+            tmp_path / "cfg" / "autostart" / "eye-tracker-lz.desktop"
+        )
         monkeypatch.setenv("XDG_CONFIG_HOME", "relative/dir")  # invalid per spec -> ignored
         assert REAL_LINUX_DESKTOP_PATH() == (
             Path.home() / ".config" / "autostart" / "eye-tracker-lz.desktop"
