@@ -850,7 +850,7 @@ def _problems(report: dict[str, Any]) -> list[str]:
 
     cameras = report.get("cameras") or {}
     if cameras.get("probed") and cameras.get("devices") == []:
-        hint = " (it may be in use by Eye Tracker itself)" if _instance_running(report) else ""
+        hint = f" (it may be in use by {APP_NAME} itself)" if _instance_running(report) else ""
         problems.append(f"No camera delivered a picture{hint}.")
 
     platform_info = report.get("platform") or {}
@@ -861,7 +861,7 @@ def _problems(report: dict[str, Any]) -> list[str]:
         problems.append(
             "Accessibility permission was granted to an earlier version, so keyboard focus "
             "cannot follow your gaze: in System Settings > Privacy & Security > "
-            "Accessibility remove Eye Tracker with '-' and add it again."
+            f"Accessibility remove {APP_NAME} with '-' and add it again."
         )
     elif permissions.get("accessibility") is False:
         problems.append(
@@ -893,7 +893,7 @@ def _problems(report: dict[str, Any]) -> list[str]:
     autostart_info = report.get("autostart") or {}
     if autostart_info.get("status") == "stale":
         problems.append(
-            "Start at login points to a copy of Eye Tracker that no longer exists; "
+            f"Start at login points to a copy of {APP_NAME} that no longer exists; "
             "turn it off and on again."
         )
 

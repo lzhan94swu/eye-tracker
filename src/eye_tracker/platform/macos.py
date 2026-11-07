@@ -1124,9 +1124,9 @@ class MacPlatform(PlatformServices):
         self._warned_untrusted = True
         if self.accessibility_status() == "stale":
             log.warning(
-                "Accessibility access was granted to an earlier version of Eye Tracker and "
+                "Accessibility access was granted to an earlier version of Eye Tracker LZ and "
                 "does not apply to this one: keyboard focus cannot follow your gaze. In System "
-                "Settings › Privacy & Security › Accessibility, remove Eye Tracker with '−' "
+                "Settings › Privacy & Security › Accessibility, remove Eye Tracker LZ with '−' "
                 "and add it again."
             )
         else:

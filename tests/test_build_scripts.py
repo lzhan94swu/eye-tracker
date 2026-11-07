@@ -987,7 +987,7 @@ def test_every_package_is_smoke_tested_as_users_get_it() -> None:
 def test_bug_report_names_the_command_of_every_package() -> None:
     text = (REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.yml").read_text(encoding="utf-8")
     for fragment in (
-        "`eye-tracker doctor` in a new terminal",
+        "`eye-tracker-lz doctor` in a new terminal",
         # Without the PATH entry: spelled so that PowerShell and cmd both run it.
         "`.\\eye-tracker-lz.exe doctor` in `%LOCALAPPDATA%\\Programs\\Eye Tracker LZ`",
         "`.\\eye-tracker-cli.exe doctor`",
