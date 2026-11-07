@@ -994,7 +994,7 @@ def test_bug_report_names_the_command_of_every_package() -> None:
         '`"/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli" doctor`',
         "`./EyeTracker-*.AppImage doctor`",
         "`./eye-tracker/eye-tracker doctor`",
-        "`uv run eye-tracker doctor`",
+        "`uv run eye-tracker-lz doctor`",
     ):
         assert fragment in text, fragment
     # The template's install types are the release packages plus source installs.
