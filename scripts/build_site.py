@@ -25,8 +25,8 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "site"
-REPO_URL = "https://github.com/bugraskl/eye-tracker"
-SITE_URL = "https://bugraskl.github.io/eye-tracker/"
+REPO_URL = "https://github.com/lzhan94swu/eye-tracker"
+SITE_URL = "https://lzhan94swu.github.io/eye-tracker/"
 RELEASES_URL = f"{REPO_URL}/releases/latest"
 
 #: Placeholder prefix → regular expression for the release asset's file name.

@@ -1,4 +1,7 @@
 <p align="center">
+
+> Fork maintained by [lzhan94swu](https://github.com/lzhan94swu). This is an independent app identity; it can be installed alongside the upstream Eye Tracker. [Build and install instructions](docs/fork-development.md). Original project: [bugraskl/eye-tracker](https://github.com/bugraskl/eye-tracker). No fork release is published until explicitly tagged.
+
   <img src="assets/hero.png" alt="Eye Tracker: look at a monitor and your cursor and keyboard focus follow" width="100%">
 </p>
 
@@ -63,9 +66,9 @@ privacy mode, during calibration and while another app has the camera.
 
 | Platform | Package | |
 |---|---|---|
-| **Windows** 10/11 x64 | Installer `.exe` or portable `.zip` | [Download](https://github.com/bugraskl/eye-tracker/releases/latest) |
-| **macOS** 14+ Apple silicon | `.dmg` | [Download](https://github.com/bugraskl/eye-tracker/releases/latest) |
-| **Linux** x86_64 | `.AppImage` or `.tar.gz` | [Download](https://github.com/bugraskl/eye-tracker/releases/latest) |
+| **Windows** 10/11 x64 | Installer `.exe` or portable `.zip` | [Download](https://github.com/lzhan94swu/eye-tracker/releases) |
+| **macOS** 14+ Apple silicon | `.dmg` | [Download](https://github.com/lzhan94swu/eye-tracker/releases) |
+| **Linux** x86_64 | `.AppImage` or `.tar.gz` | [Download](https://github.com/lzhan94swu/eye-tracker/releases) |
 
 Every release ships `SHA256SUMS.txt` and GitHub build-provenance attestations. Builds are not
 code-signed yet; see [platform notes](docs/platform-support.md) for the one-time Gatekeeper and
@@ -174,10 +177,10 @@ The examples use `eye-tracker`. What to type depends on how you installed Eye Tr
 |---|---|
 | Windows installer | `eye-tracker` in a new terminal (PATH option unticked: `.\eye-tracker.exe` in `%LOCALAPPDATA%\Programs\Eye Tracker`) |
 | Windows portable ZIP | `.\eye-tracker-cli.exe` in the extracted folder |
-| macOS | `"/Applications/Eye Tracker.app/Contents/MacOS/eye-tracker-cli"` |
+| macOS | `"/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli"` |
 | Linux AppImage | the AppImage file itself, e.g. `./EyeTracker-<version>-linux-x86_64.AppImage` |
 | Linux tarball | `./eye-tracker/eye-tracker` |
-| From source | `uv run eye-tracker` |
+| From source | `uv run eye-tracker-lz` |
 
 `eye-tracker doctor` shows the command of your copy (*command_line*), and so do the app's own hints.
 
@@ -242,7 +245,7 @@ Requires [uv](https://docs.astral.sh/uv/) (it fetches the right Python itself).
 git clone https://github.com/bugraskl/eye-tracker.git
 cd eye-tracker
 uv sync
-uv run eye-tracker
+uv run eye-tracker-lz
 ```
 
 This is also the way to run Eye Tracker on an Intel Mac (macOS 14 or newer). On Linux, running

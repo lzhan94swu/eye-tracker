@@ -88,8 +88,8 @@ def read_package_constants() -> dict:
 
 META = read_package_constants()
 VERSION = META["__version__"]
-APP_NAME = META["APP_NAME"]  # "Eye Tracker"
-APP_ID = META["APP_ID"]  # "io.github.bugraskl.eyetracker"
+APP_NAME = META["APP_NAME"]  # "Eye Tracker LZ"
+APP_ID = META["APP_ID"]  # "io.github.lzhan94swu.eyetracker"
 REPO_URL = META["REPO_URL"]
 COPYRIGHT = "Copyright © 2026 Buğra Şıkel. MIT License."
 

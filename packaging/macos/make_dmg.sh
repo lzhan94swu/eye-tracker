@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Sign "Eye Tracker.app" and wrap it in a drag-to-install disk image.
+# Sign "Eye Tracker LZ.app" and wrap it in a drag-to-install disk image.
 #
 # Usage (from the repository root, after PyInstaller):
-#   bash packaging/macos/make_dmg.sh [--app "dist/Eye Tracker.app"] [--out FILE.dmg]
+#   bash packaging/macos/make_dmg.sh [--app "dist/Eye Tracker LZ.app"] [--out FILE.dmg]
 #        [--version X.Y.Z] [--identity NAME] [--keychain PATH]
 #
-# Defaults: --app dist/Eye Tracker.app, --version from the app's Info.plist,
+# Defaults: --app dist/Eye Tracker LZ.app, --version from the app's Info.plist,
 # --out dist/EyeTracker-<version>-macos-<arch>.dmg, --identity "-" (ad hoc) or
 # $MACOS_SIGN_IDENTITY, --keychain $MACOS_SIGN_KEYCHAIN (default: the search list).
 #
@@ -29,10 +29,10 @@ die() { echo "make_dmg: $*" >&2; exit 1; }
 [[ "$(uname -s)" == "Darwin" ]] || die "this script needs macOS (hdiutil, codesign)"
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-APP="$ROOT/dist/Eye Tracker.app"
+APP="$ROOT/dist/Eye Tracker LZ.app"
 OUT=""
 VERSION=""
-VOLUME_NAME="Eye Tracker"
+VOLUME_NAME="Eye Tracker LZ"
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 KEYCHAIN="${MACOS_SIGN_KEYCHAIN:-}"
 
