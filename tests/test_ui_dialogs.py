@@ -647,7 +647,9 @@ def test_start_at_login_checkbox_uses_autostart(
     fake_autostart: FakeAutostart, dialog: SettingsDialog
 ) -> None:
     box = next(
-        b for b in dialog.findChildren(QCheckBox) if b.text() == "Start Eye Tracker when I log in"
+        b
+        for b in dialog.findChildren(QCheckBox)
+        if b.text() == "Start Eye Tracker LZ when I log in"
     )
     assert box.isEnabled()
     assert not box.isChecked()
@@ -1435,7 +1437,9 @@ def test_diagnostics_see_the_hotkeys_registered(
 # ======================================================== settings: review fixes
 def _autostart_box(dialog: SettingsDialog) -> QCheckBox:
     return next(
-        b for b in dialog.findChildren(QCheckBox) if b.text() == "Start Eye Tracker when I log in"
+        b
+        for b in dialog.findChildren(QCheckBox)
+        if b.text() == "Start Eye Tracker LZ when I log in"
     )
 
 

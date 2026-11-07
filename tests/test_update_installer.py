@@ -42,10 +42,10 @@ def transport(body: bytes = BODY, listing: bytes | None = None) -> FakeTransport
     digest = hashlib.sha256(BODY).hexdigest()
     return FakeTransport(
         {
-            ("github.com", f"/bugraskl/eye-tracker/releases/download/{TAG}/SHA256SUMS.txt"): (
+            ("github.com", f"/lzhan94swu/eye-tracker/releases/download/{TAG}/SHA256SUMS.txt"): (
                 FakeResponse(body=listing if listing is not None else sums(digest))
             ),
-            ("github.com", f"/bugraskl/eye-tracker/releases/download/{TAG}/{NAME}"): FakeResponse(
+            ("github.com", f"/lzhan94swu/eye-tracker/releases/download/{TAG}/{NAME}"): FakeResponse(
                 body=body
             ),
         }

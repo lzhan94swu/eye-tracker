@@ -81,12 +81,12 @@ CONFIG_DIR_FLAG = "--config-dir"
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 #: Where Task Manager's "Startup apps" page records entries the user disabled.
 STARTUP_APPROVED_KEY = r"Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
-RUN_VALUE_NAME = "EyeTracker"
+RUN_VALUE_NAME = "EyeTrackerLZ"
 LAUNCH_AGENT_LABEL = APP_ID
 DESKTOP_FILE_NAME = f"{APP_SLUG}.desktop"
 
 #: Names the windowed executable may have next to a console ``*-cli`` executable.
-_GUI_EXECUTABLE_NAMES = ("EyeTracker.exe", "EyeTracker", "Eye Tracker", APP_SLUG)
+_GUI_EXECUTABLE_NAMES = ("EyeTracker.exe", "EyeTracker", APP_NAME, "Eye Tracker", APP_SLUG)
 #: Characters that force quoting inside a Desktop Entry ``Exec`` value.
 _DESKTOP_RESERVED = frozenset(" \t\n\"'\\><~|&;$*?#()`")
 #: Characters escaped with a backslash inside a quoted ``Exec`` argument.

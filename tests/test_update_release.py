@@ -167,7 +167,8 @@ def test_names_and_addresses() -> None:
     assert r.installer_name("0.2.1") == SETUP
     assert r.download_url(TAG, SETUP) == f"{REPO_URL}/releases/download/{TAG}/{SETUP}"
     assert (
-        r.LATEST_RELEASE_URL == "https://api.github.com/repos/bugraskl/eye-tracker/releases/latest"
+        r.LATEST_RELEASE_URL
+        == "https://api.github.com/repos/lzhan94swu/eye-tracker/releases/latest"
     )
 
 

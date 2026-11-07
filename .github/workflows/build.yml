@@ -1,6 +1,6 @@
 name: Build
 
-# The one definition of how Eye Tracker is built, packaged and tested, so that what a
+# The one definition of how Eye Tracker LZ is built, packaged and tested, so that what a
 # pull request checks is exactly what a release ships. Two workflows call it:
 #
 # * release.yml (a v* tag, or run manually) keeps the packages and the release notes
@@ -114,7 +114,7 @@ jobs:
           version = os.environ["VERSION"]
           is_tag = os.environ.get("GITHUB_REF_TYPE") == "tag"
           stable_signature = os.environ.get("MACOS_STABLE_SIGNATURE") == "true"
-          docs = "https://github.com/bugraskl/eye-tracker/blob/main/docs"
+          docs = "https://github.com/lzhan94swu/eye-tracker/blob/main/docs"
           text = Path("CHANGELOG.md").read_text(encoding="utf-8")
 
           def section(name):
@@ -168,12 +168,12 @@ jobs:
           | Linux (x86_64), tarball | `EyeTracker-{v}-linux-x86_64.tar.gz` |
 
           Verify a download with `SHA256SUMS.txt`, e.g. `sha256sum -c SHA256SUMS.txt --ignore-missing`,
-          or its build provenance with `gh attestation verify <file> --repo bugraskl/eye-tracker`.
+          or its build provenance with `gh attestation verify <file> --repo lzhan94swu/eye-tracker`.
 
           Command line (`doctor`, `ctl`, `bench`…): `eye-tracker` in a new terminal after
           installing on Windows (the installer adds it to PATH unless you untick that option;
           the portable ZIP has `eye-tracker-cli.exe`),
-          `"/Applications/Eye Tracker.app/Contents/MacOS/eye-tracker-cli"` on macOS, and the
+          `"/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli"` on macOS, and the
           `.AppImage` file itself (or `eye-tracker/eye-tracker` from the tarball) on Linux.
 
           The builds are not signed with a paid certificate: Windows SmartScreen may ask you to
@@ -185,15 +185,15 @@ jobs:
               **Updating on macOS:** this build is signed with the project's stable certificate,
               so the Camera and Accessibility permissions carry over to later updates. Coming
               from an ad-hoc-signed version, re-grant them once: in System Settings → Privacy &
-              Security → Accessibility, remove Eye Tracker with "−" and add it again.
+              Security → Accessibility, remove Eye Tracker LZ with "−" and add it again.
               """
           else:
               macos = """
               **Updating on macOS:** this build is signed ad hoc, so macOS treats every version
               as a new app. It asks for camera access again, and the Accessibility switch for
-              Eye Tracker still looks on but no longer applies: if keyboard focus stops following
+              Eye Tracker LZ still looks on but no longer applies: if keyboard focus stops following
               your gaze, open System Settings → Privacy & Security → Accessibility, remove
-              Eye Tracker with "−" and add it again.
+              Eye Tracker LZ with "−" and add it again.
               """
           links = f"""
           Help: [troubleshooting]({docs}/troubleshooting.md) ·
@@ -304,7 +304,7 @@ jobs:
         shell: pwsh
         run: |
           $setup = "dist\EyeTracker-$env:VERSION-windows-x64-setup.exe"
-          $app = Join-Path $env:LOCALAPPDATA "Programs\Eye Tracker"
+          $app = Join-Path $env:LOCALAPPDATA "Programs\Eye Tracker LZ"
           $runKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
           $approvedKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
           $logs = [System.Collections.Generic.List[string]]::new()
@@ -323,11 +323,11 @@ jobs:
             }
           }
           function Get-Autostart([string] $key) {
-            (Get-ItemProperty -Path $key -Name EyeTracker -ErrorAction SilentlyContinue).EyeTracker
+            (Get-ItemProperty -Path $key -Name EyeTrackerLZ -ErrorAction SilentlyContinue).EyeTrackerLZ
           }
           function Set-TaskManagerDisabled {
             New-Item -Path $approvedKey -Force | Out-Null
-            New-ItemProperty -Path $approvedKey -Name EyeTracker -PropertyType Binary -Force `
+            New-ItemProperty -Path $approvedKey -Name EyeTrackerLZ -PropertyType Binary -Force `
               -Value ([byte[]](3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) | Out-Null
           }
 
@@ -336,18 +336,18 @@ jobs:
             Invoke-Setup "install" @("/MERGETASKS=startup,!desktopicon")
             & "$app\eye-tracker-cli.exe" --version
             if ($LASTEXITCODE -ne 0) { throw "the installed CLI failed" }
-            & "$app\eye-tracker.exe" --version
+            & "$app\eye-tracker-lz.exe" --version
             if ($LASTEXITCODE -ne 0) { throw "the installed eye-tracker command failed" }
             if (-not (Get-Autostart $runKey)) { throw "the startup task did not register the app" }
             if ((Get-Autostart $runKey) -notlike "*\EyeTracker.exe*") { throw "start at sign-in must run the windowed EyeTracker.exe" }
             if ((Get-PathCount) -ne 1) { throw "the installer did not add $app to the user PATH" }
             # The installed copy as a whole, through the command on PATH.
-            uv run --no-sync python scripts/smoke_test_bundle.py --version $env:VERSION "$app\eye-tracker.exe"
+            uv run --no-sync python scripts/smoke_test_bundle.py --version $env:VERSION "$app\eye-tracker-lz.exe"
             if ($LASTEXITCODE -ne 0) { throw "the installed copy failed its smoke test" }
 
             # Turned off in the app (the Run value is deleted): a silent upgrade, as
             # winget runs it, must not re-enable it...
-            Remove-ItemProperty -Path $runKey -Name EyeTracker
+            Remove-ItemProperty -Path $runKey -Name EyeTrackerLZ
             Invoke-Setup "upgrade-silent" @()
             if (Get-Autostart $runKey) { throw "a silent upgrade re-enabled start at sign-in" }
             if ((Get-PathCount) -ne 1) { throw "an upgrade duplicated or dropped the PATH entry" }
@@ -408,7 +408,7 @@ jobs:
             # The uninstaller finishes in a copy of itself; wait for it to remove the folder.
             for ($i = 0; $i -lt 30 -and (Test-Path "$app\eye-tracker-cli.exe"); $i++) { Start-Sleep 1 }
             if (Test-Path "$app\eye-tracker-cli.exe") { throw "uninstall left files behind in $app" }
-            if (Test-Path "$app\eye-tracker.exe") { throw "uninstall left eye-tracker.exe behind in $app" }
+            if (Test-Path "$app\eye-tracker-lz.exe") { throw "uninstall left eye-tracker-lz.exe behind in $app" }
             if (Get-Autostart $runKey) { throw "uninstall left the start-at-sign-in entry behind" }
             if (Get-Autostart $approvedKey) { throw "uninstall left the StartupApproved value behind" }
             if ((Get-PathCount) -ne 0) { throw "uninstall left $app on the user PATH" }
@@ -439,7 +439,7 @@ jobs:
   build-macos:
     name: macOS arm64
     needs: prepare
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 60
     env:
       VERSION: ${{ needs.prepare.outputs.version }}
@@ -475,7 +475,7 @@ jobs:
         run: uv run --no-sync pyinstaller packaging/pyinstaller/eye-tracker.spec --noconfirm --clean
 
       - name: Privacy gate for the bundle (no telemetry, no unexpected networking code)
-        run: uv run --no-sync python scripts/check_privacy.py --bundle "dist/Eye Tracker.app"
+        run: uv run --no-sync python scripts/check_privacy.py --bundle "dist/Eye Tracker LZ.app"
 
       # Optional: sign with a stable certificate so the Camera and Accessibility
       # permissions survive updates (see packaging/macos/make_dmg.sh). Without the
@@ -529,7 +529,7 @@ jobs:
           MACOS_SIGN_IDENTITY: ${{ steps.signing.outputs.identity }}
           MACOS_SIGN_KEYCHAIN: ${{ steps.signing.outputs.keychain }}
         run: |
-          bash packaging/macos/make_dmg.sh --app "dist/Eye Tracker.app" --version "$VERSION" \
+          bash packaging/macos/make_dmg.sh --app "dist/Eye Tracker LZ.app" --version "$VERSION" \
             --out "dist/EyeTracker-$VERSION-macos-arm64.dmg"
 
       - name: Remove the signing keychain
@@ -545,7 +545,7 @@ jobs:
           mkdir -p "$mnt"
           hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "dist/EyeTracker-$VERSION-macos-arm64.dmg"
           trap 'hdiutil detach "$mnt" -force || true' EXIT
-          app="$mnt/Eye Tracker.app"
+          app="$mnt/Eye Tracker LZ.app"
           test -L "$mnt/Applications"
           # Every symbolic link in the app resolves (with -L, find lists the broken ones).
           broken="$(find -L "$app" -type l)"
@@ -557,7 +557,7 @@ jobs:
           codesign --verify --deep --strict --verbose=2 "$app"
           plist="$app/Contents/Info.plist"
           plutil -p "$plist"
-          test "$(plutil -extract CFBundleIdentifier raw "$plist")" = "io.github.bugraskl.eyetracker"
+          test "$(plutil -extract CFBundleIdentifier raw "$plist")" = "io.github.lzhan94swu.eyetracker"
           test "$(plutil -extract LSUIElement raw "$plist")" = "true"
           test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "$VERSION"
           minimum="$(plutil -extract LSMinimumSystemVersion raw "$plist")"
@@ -566,7 +566,7 @@ jobs:
             exit 1
           fi
           plutil -extract NSCameraUsageDescription raw "$plist" > /dev/null
-          test -x "$app/Contents/MacOS/Eye Tracker"
+          test -x "$app/Contents/MacOS/Eye Tracker LZ"
           # The command-line tool from inside the disk image: version, models, both
           # backends, video files read by the bundled FFmpeg, AVFoundation camera probing.
           cli="$app/Contents/MacOS/eye-tracker-cli"

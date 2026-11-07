@@ -1,0 +1,85 @@
+name: macOS Preview
+
+# Build a download-ready, ad-hoc-signed DMG without publishing a Release.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "packaging/**"
+      - "scripts/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/macos-preview.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: macos-preview-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      QT_QPA_PLATFORM: offscreen
+      UV_NO_PROGRESS: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup uv and Python
+        uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install pinned dependencies
+        run: uv sync --locked
+
+      - name: Verify local models and licenses
+        run: uv run --no-sync python scripts/fetch_models.py --check
+
+      - name: Generate icons
+        run: uv run --no-sync python scripts/make_icons.py
+
+      - name: Build independent app bundle
+        run: uv run --no-sync pyinstaller packaging/pyinstaller/eye-tracker.spec --noconfirm --clean
+
+      - name: Check bundled privacy constraints
+        run: uv run --no-sync python scripts/check_privacy.py --bundle "dist/Eye Tracker LZ.app"
+
+      - name: Sign ad hoc and build DMG
+        run: |
+          set -euo pipefail
+          VERSION="$(uv run --no-sync python -c 'import eye_tracker; print(eye_tracker.__version__)')"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          bash packaging/macos/make_dmg.sh --app "dist/Eye Tracker LZ.app" --version "$VERSION" \
+            --out "dist/EyeTracker-LZ-preview-macos-arm64.dmg"
+
+      - name: Verify packaged app and command-line tool
+        run: |
+          set -euo pipefail
+          mnt="$RUNNER_TEMP/eye-tracker-lz-preview"
+          mkdir -p "$mnt"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mnt" "dist/EyeTracker-LZ-preview-macos-arm64.dmg"
+          trap 'hdiutil detach "$mnt" -force || true' EXIT
+          app="$mnt/Eye Tracker LZ.app"
+          codesign --verify --deep --strict "$app"
+          plist="$app/Contents/Info.plist"
+          test "$(plutil -extract CFBundleIdentifier raw "$plist")" = "io.github.lzhan94swu.eyetracker"
+          test "$(plutil -extract LSUIElement raw "$plist")" = "true"
+          test "$(plutil -extract CFBundleShortVersionString raw "$plist")" = "$VERSION"
+          test -x "$app/Contents/MacOS/Eye Tracker LZ"
+          uv run --no-sync python scripts/smoke_test_bundle.py --version "$VERSION" \
+            "$app/Contents/MacOS/eye-tracker-cli"
+
+      - name: Upload downloadable DMG
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: EyeTracker-LZ-macos-arm64-preview
+          path: dist/EyeTracker-LZ-preview-macos-arm64.dmg
+          if-no-files-found: error
+          retention-days: 14

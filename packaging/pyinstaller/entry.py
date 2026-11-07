@@ -19,7 +19,7 @@ import os
 import sys
 
 #: Case-folded stems of the windowed executables.
-_GUI_EXECUTABLES = frozenset({"eyetracker", "eye tracker"})
+_GUI_EXECUTABLES = frozenset({"eyetracker", "eye tracker", "eye tracker lz"})
 
 
 def _is_gui_executable(path: str) -> bool:

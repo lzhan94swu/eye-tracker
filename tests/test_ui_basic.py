@@ -488,7 +488,7 @@ def test_tray_menu_reflects_state(
     assert tray.action_status.text().startswith(state.label)
     assert not tray.action_status.isEnabled()
     assert not tray.tray.icon().isNull()
-    assert tray.tray.toolTip().startswith(f"Eye Tracker — {state.label}")
+    assert tray.tray.toolTip().startswith(f"Eye Tracker LZ — {state.label}")
     needs = state is S.NEEDS_CALIBRATION
     assert tray.action_calibrate.font().bold() == needs
     assert _label(tray.action_calibrate) == ("Calibrate now…" if needs else "Calibrate…")
@@ -511,8 +511,8 @@ def test_tray_menu_layout(controller: FakeController, cleanup: list[Any]) -> Non
         "Settings…",
         "Start at login",
         "Check for updates…",
-        "About Eye Tracker",
-        "Quit Eye Tracker",
+        "About Eye Tracker LZ",
+        "Quit Eye Tracker LZ",
     ]
     # macOS must not move "About"/"Quit"/"Settings" into an application menu.
     assert all(a.menuRole() == a.MenuRole.NoRole for a in actions)
@@ -543,20 +543,20 @@ def test_tray_pause_text_follows_the_paused_flag(
 def test_tray_tooltip_format(controller: FakeController, cleanup: list[Any]) -> None:
     tray = _tray(controller, cleanup)
     controller.stats_changed.emit({"fps": 4.2, "cpu_percent": 0.64, "state": "tracking"})
-    assert tray.tooltip_text() == "Eye Tracker — Tracking · 4 fps · CPU 0.6 %"
+    assert tray.tooltip_text() == "Eye Tracker LZ — Tracking · 4 fps · CPU 0.6 %"
     assert tray.tray.toolTip() == tray.tooltip_text()
     controller.set_state(S.PAUSED)  # camera off: no frame rate
-    assert tray.tray.toolTip() == "Eye Tracker — Paused · CPU 0.6 %"
+    assert tray.tray.toolTip() == "Eye Tracker LZ — Paused · CPU 0.6 %"
     controller.set_state(S.CAMERA_ERROR)
     controller.stats_changed.emit({"last_error": "Camera 0 could not be opened"})
-    assert tray.tray.toolTip() == "Eye Tracker — Camera unavailable"
+    assert tray.tray.toolTip() == "Eye Tracker LZ — Camera unavailable"
     assert tray.status_text() == "Camera unavailable — Camera 0 could not be opened"
     tray.update_stats({"fps": float("nan"), "cpu_percent": "x"})  # garbage is ignored
     tray.update_stats("not a mapping")  # type: ignore[arg-type]
     controller.set_state(S.TRACKING)
-    assert tray.tooltip_text() == "Eye Tracker — Tracking"
+    assert tray.tooltip_text() == "Eye Tracker LZ — Tracking"
     tray.update_stats({"fps": 0.5, "cpu_percent": True})
-    assert tray.tooltip_text() == "Eye Tracker — Tracking · 0.5 fps"
+    assert tray.tooltip_text() == "Eye Tracker LZ — Tracking · 0.5 fps"
     assert len(tray.tooltip_text()) <= 127
 
 
@@ -567,7 +567,7 @@ def test_tray_status_line_explains_yield_and_calibration(
     controller.yield_reason = "zoom.exe is running"
     controller.set_state(S.YIELDED)
     assert tray.action_status.text() == "Paused — zoom.exe is running"
-    assert tray.tray.toolTip().startswith("Eye Tracker — Camera in use by another app")
+    assert tray.tray.toolTip().startswith("Eye Tracker LZ — Camera in use by another app")
     controller.yield_reason = ""
     controller.set_state(S.TRACKING)
     controller.set_state(S.YIELDED)

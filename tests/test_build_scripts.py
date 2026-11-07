@@ -314,13 +314,13 @@ def test_check_mode(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
 @pytest.mark.parametrize(
     ("executable", "gui"),
     [
-        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker\EyeTracker.exe", True),
-        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker\eyetracker.EXE", True),
-        ("/Applications/Eye Tracker.app/Contents/MacOS/Eye Tracker", True),
+        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker LZ\EyeTracker.exe", True),
+        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker LZ\eyetracker.EXE", True),
+        ("/Applications/Eye Tracker LZ.app/Contents/MacOS/Eye Tracker LZ", True),
         (r"C:\portable\EyeTracker\eye-tracker-cli.exe", False),
         # The installer's copy of the CLI, found through PATH.
-        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker\eye-tracker.exe", False),
-        ("/Applications/Eye Tracker.app/Contents/MacOS/eye-tracker-cli", False),
+        (r"C:\Users\me\AppData\Local\Programs\Eye Tracker LZ\eye-tracker-lz.exe", False),
+        ("/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli", False),
         ("/opt/eye-tracker/eye-tracker", False),
         ("/usr/bin/python3", False),
     ],
@@ -336,9 +336,11 @@ def test_entry_point_selection_does_not_depend_on_the_os(
     # os.path is posixpath on the macOS and Linux CI runners, which does not split
     # Windows paths; the helper must give the same answers there (packaging-03).
     monkeypatch.setattr(entry, "os", SimpleNamespace(path=flavour))
-    assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker\EyeTracker.exe")
-    assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker\eyetracker.EXE")
-    assert entry._is_gui_executable("/Applications/Eye Tracker.app/Contents/MacOS/Eye Tracker")
+    assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker LZ\EyeTracker.exe")
+    assert entry._is_gui_executable(r"C:\Users\me\Programs\Eye Tracker LZ\eyetracker.EXE")
+    assert entry._is_gui_executable(
+        "/Applications/Eye Tracker LZ.app/Contents/MacOS/Eye Tracker LZ"
+    )
     assert not entry._is_gui_executable(r"C:\portable\EyeTracker\eye-tracker-cli.exe")
     assert not entry._is_gui_executable("/opt/eye-tracker/eye-tracker")
 
@@ -382,7 +384,7 @@ def test_spec_is_valid_python_and_names_the_executables() -> None:
 def test_gui_executable_names_agree_with_autostart() -> None:
     from eye_tracker.platform import autostart
 
-    gui_names = {"EyeTracker.exe", "Eye Tracker"}
+    gui_names = {"EyeTracker.exe", "Eye Tracker LZ"}
     for name in gui_names:
         assert name in autostart._GUI_EXECUTABLE_NAMES
         assert entry._is_gui_executable(name)
@@ -415,7 +417,7 @@ def test_installer_matches_the_app() -> None:
 
 def test_installer_app_id_never_changes() -> None:
     # Upgrades and the upgrade detection in [Code] both depend on it.
-    assert _iss_define("AppGuid") == "F2F98F7C-0EEF-44D5-ADDE-173D9D8BA82B"
+    assert _iss_define("AppGuid") == "6DCD307F-67F0-4E25-A735-86F8F524B76B"
     text = _iss_text()
     assert "AppId={{{#AppGuid}}" in text
     assert '#define UninstallKey "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\{"' in (
@@ -505,7 +507,7 @@ def _iss_section(name: str) -> list[str]:
 def test_installer_puts_the_command_on_path() -> None:
     """r2-docs-01: after a default installation "eye-tracker <command>" works in a new
     terminal, as the documentation writes it; start at sign-in keeps the windowed app."""
-    assert _iss_define("CliCommandExeName") == "eye-tracker.exe"
+    assert _iss_define("CliCommandExeName") == "eye-tracker-lz.exe"
     [task] = [line for line in _iss_section("Tasks") if line.startswith('Name: "addtopath"')]
     assert "unchecked" not in task  # on by default
     assert 'Description: "{cm:AddToPath}"' in task
@@ -603,7 +605,7 @@ def test_linux_desktop_entry() -> None:
     assert entries["Type"] == "Application"
     assert entries["Name"] == APP_NAME
     assert entries["Exec"] == "eye-tracker"
-    assert entries["Icon"] == "eye-tracker"
+    assert entries["Icon"] == "eye-tracker-lz"
     assert entries["Categories"].endswith(";")
 
 
@@ -726,7 +728,7 @@ def test_packages_are_built_and_tested_in_one_place() -> None:
     assert set(build) == {"prepare", "build-windows", "build-macos", "build-linux"}
     for job, runner in (
         ("build-windows", "windows-latest"),
-        ("build-macos", "macos-14"),
+        ("build-macos", "macos-15"),
         ("build-linux", "ubuntu-22.04"),
     ):
         assert f"    runs-on: {runner}\n" in build[job], job
@@ -795,7 +797,7 @@ def test_release_builds_pass_the_bundle_privacy_gate() -> None:
     jobs = _jobs(_workflow("build.yml"))
     for job, bundle in (
         ("build-windows", "dist/EyeTracker"),
-        ("build-macos", '"dist/Eye Tracker.app"'),
+        ("build-macos", '"dist/Eye Tracker LZ.app"'),
         ("build-linux", "dist/eye-tracker"),
     ):
         text = jobs[job]
@@ -854,7 +856,7 @@ def test_release_checks_the_documented_macos_minimum() -> None:
 def test_release_smoke_tests_the_path_entry_and_the_command() -> None:
     windows = _jobs(_workflow("build.yml"))["build-windows"]
     for fragment in (
-        '& "$app\\eye-tracker.exe" --version',
+        '& "$app\\eye-tracker-lz.exe" --version',
         'if ((Get-PathCount) -ne 1) { throw "the installer did not add $app to the user PATH" }',
         'Invoke-Setup "upgrade-no-path" @("/MERGETASKS=!addtopath")',
         'if ((Get-PathCount) -ne 0) { throw "uninstall left $app on the user PATH" }',
@@ -964,7 +966,7 @@ def test_every_package_is_smoke_tested_as_users_get_it() -> None:
     assert windows.index("dist/EyeTracker/eye-tracker-cli.exe") < windows.index(
         "Create the portable ZIP"
     )
-    assert f'{_SMOKE_TEST} $env:VERSION "$app\\eye-tracker.exe"' in windows
+    assert f'{_SMOKE_TEST} $env:VERSION "$app\\eye-tracker-lz.exe"' in windows
     macos = _steps(jobs["build-macos"])["Smoke-test the app inside the disk image"]
     for fragment in (
         'hdiutil attach -nobrowse -readonly -mountpoint "$mnt"',
@@ -985,14 +987,14 @@ def test_every_package_is_smoke_tested_as_users_get_it() -> None:
 def test_bug_report_names_the_command_of_every_package() -> None:
     text = (REPO_ROOT / ".github" / "ISSUE_TEMPLATE" / "bug_report.yml").read_text(encoding="utf-8")
     for fragment in (
-        "`eye-tracker doctor` in a new terminal",
+        "`eye-tracker-lz doctor` in a new terminal",
         # Without the PATH entry: spelled so that PowerShell and cmd both run it.
-        "`.\\eye-tracker.exe doctor` in `%LOCALAPPDATA%\\Programs\\Eye Tracker`",
+        "`.\\eye-tracker-lz.exe doctor` in `%LOCALAPPDATA%\\Programs\\Eye Tracker LZ`",
         "`.\\eye-tracker-cli.exe doctor`",
-        '`"/Applications/Eye Tracker.app/Contents/MacOS/eye-tracker-cli" doctor`',
+        '`"/Applications/Eye Tracker LZ.app/Contents/MacOS/eye-tracker-cli" doctor`',
         "`./EyeTracker-*.AppImage doctor`",
         "`./eye-tracker/eye-tracker doctor`",
-        "`uv run eye-tracker doctor`",
+        "`uv run eye-tracker-lz doctor`",
     ):
         assert fragment in text, fragment
     # The template's install types are the release packages plus source installs.
@@ -1005,7 +1007,7 @@ def test_release_notes_explain_macos_permissions_after_updates() -> None:
     jobs = _jobs(_workflow("build.yml"))
     prepare = jobs["prepare"]
     assert "MACOS_STABLE_SIGNATURE: ${{ secrets.MACOS_SIGNING_CERT_P12 != '' }}" in prepare
-    assert 'remove\n              Eye Tracker with "−" and add it again.' in prepare
+    assert 'remove\n              Eye Tracker LZ with "−" and add it again.' in prepare
     macos = jobs["build-macos"]
     # Signing with a stable certificate is optional; without the secret the
     # import step exits early and make_dmg.sh falls back to an ad-hoc signature.
@@ -1130,7 +1132,7 @@ def test_make_dmg_refuses_dangling_symlinks_before_signing() -> None:
 
 @pytest.mark.skipif(sys.platform != "darwin", reason="make_dmg.sh runs on macOS")
 def test_make_dmg_names_the_dangling_symlinks(tmp_path: Path) -> None:
-    app = tmp_path / "Eye Tracker.app"
+    app = tmp_path / "Eye Tracker LZ.app"
     frameworks = app / "Contents" / "Frameworks"
     frameworks.mkdir(parents=True)
     (app / "Contents" / "Info.plist").write_text("<plist/>\n", encoding="utf-8")
@@ -1173,7 +1175,7 @@ def _fake_cli(
         args = command[1:]
         stderr = ""
         if args == ["--version"]:
-            data: Any = f"Eye Tracker {version}\n"
+            data: Any = f"Eye Tracker LZ {version}\n"
         elif "--probe-cameras" in args:
             data = {"cameras": {"probed": True, "devices": []}}
             stderr = broken.get("probe_stderr", smoke_test_bundle.AVFOUNDATION_PROBE_MESSAGE)
@@ -1182,7 +1184,7 @@ def _fake_cli(
             models.update(broken.get("models", {}))
             data = {"app": {"version": version, "frozen": True}, "backends": {"models": models}}
         elif "doctor" in args:
-            data = "Eye Tracker - diagnostics\n"
+            data = "Eye Tracker LZ - diagnostics\n"
         else:
             camera = Path(args[args.index("--camera") + 1])
             backend = args[args.index("--backend") + 1] if "--backend" in args else "facemesh"
@@ -2562,7 +2564,7 @@ def _symlink(link: Path, target: str, *, folder: bool = False) -> None:
 def test_broken_symlinks_in_the_build_output_fail_the_build(
     spec_helpers: dict[str, Any], tmp_path: Path
 ) -> None:
-    out = tmp_path / "Eye Tracker.app"
+    out = tmp_path / "Eye Tracker LZ.app"
     (out / "Contents" / "Frameworks" / "cv2").mkdir(parents=True)
     (out / "Contents" / "Frameworks" / "cv2" / "libavformat.61.dylib").write_bytes(b"x")
     spec_helpers["require_intact_symlinks"](out)  # no links at all

@@ -34,21 +34,21 @@
   #define OutputDir AddBackslash(SourcePath) + "..\..\dist"
 #endif
 
-#define AppName "Eye Tracker"
+#define AppName "Eye Tracker LZ"
 ; AppId identifies the installation for upgrades and uninstall. Never change it.
-#define AppGuid "F2F98F7C-0EEF-44D5-ADDE-173D9D8BA82B"
+#define AppGuid "6DCD307F-67F0-4E25-A735-86F8F524B76B"
 #define AppExeName "EyeTracker.exe"
 #define CliExeName "eye-tracker-cli.exe"
 ; The same console program under the name the documentation uses ("eye-tracker
 ; doctor"), found through PATH. Start-at-sign-in keeps using the windowed AppExeName.
-#define CliCommandExeName "eye-tracker.exe"
+#define CliCommandExeName "eye-tracker-lz.exe"
 ; Same ID the app sets at run time (SetCurrentProcessExplicitAppUserModelID), so
 ; notifications and the taskbar group with the Start menu shortcut.
-#define AppUserModelID "io.github.bugraskl.eyetracker"
-#define RepoUrl "https://github.com/bugraskl/eye-tracker"
+#define AppUserModelID "io.github.lzhan94swu.eyetracker"
+#define RepoUrl "https://github.com/lzhan94swu/eye-tracker"
 ; Value name shared with eye_tracker.platform.autostart, so the app and the
 ; installer manage the same "start at sign-in" entry.
-#define RunValueName "EyeTracker"
+#define RunValueName "EyeTrackerLZ"
 #define RunKey "Software\Microsoft\Windows\CurrentVersion\Run"
 #define StartupApprovedKey "Software\Microsoft\Windows\CurrentVersion\Explorer\StartupApproved\Run"
 ; Where Inno Setup records this per-user installation (used to detect upgrades).
@@ -63,7 +63,7 @@ AppId={{{#AppGuid}}
 AppName={#AppName}
 AppVersion={#AppVersion}
 AppVerName={#AppName} {#AppVersion}
-AppPublisher=Buğra Şıkel
+AppPublisher=lzhan94swu
 AppPublisherURL={#RepoUrl}
 AppSupportURL={#RepoUrl}/issues
 AppUpdatesURL={#RepoUrl}/releases
@@ -166,9 +166,9 @@ Type: dirifempty; Name: "{app}"
 
 [Code]
 const
-  { platformdirs locations (appauthor "bugraskl", appname "eye-tracker"). }
-  UserDataParent = '{localappdata}\bugraskl';
-  UserDataDir = '{localappdata}\bugraskl\eye-tracker';
+  { platformdirs locations (appauthor "lzhan94swu", appname "eye-tracker-lz"). }
+  UserDataParent = '{localappdata}\lzhan94swu';
+  UserDataDir = '{localappdata}\lzhan94swu\eye-tracker-lz';
   { "eye-tracker ctl" exit code when no instance is running. }
   CtlNotRunning = 3;
   { Where Windows keeps the user's own environment variables. }
